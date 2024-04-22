@@ -1,0 +1,8 @@
+--Transcation Id and IBAN number--
+select split_part(transaction_code, '-',1) as bank
+    ,weekday(transaction_date)
+    ,iff(online_or_in_person =1, 'Online','In Person') as Online_or_in_person
+    ,customer_code
+    ,value
+from pd2023_wk01
+;
