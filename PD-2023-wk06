@@ -1,0 +1,45 @@
+--Used case statement and CTE's--
+with MA as
+(
+    select customer_id
+        ,split_part(mobile_app,'___',2) as question
+        ,mobile_app_value
+    from pd2023_wk06_dsb_customer_survey
+    unpivot(mobile_app_value for mobile_app in (mobile_app___ease_of_use, mobile_app___ease_of_access,mobile_app___navigation, mobile_app___likelihood_to_recommend))
+)
+, OI as
+(
+    select customer_id
+        ,split_part(online_interface,'___',2) as question
+        ,online_interface_value
+    from pd2023_wk06_dsb_customer_survey
+    unpivot(online_interface_value for online_interface in (online_interface___ease_of_use, online_interface___ease_of_access,online_interface___navigation,                    online_interface___likelihood_to_recommend))
+)
+, diff as
+(
+    select MA.customer_id
+        ,Avg(MA.mobile_app_value)-Avg(OI.online_interface_value) as difference
+    from MA
+    inner join OI
+        on MA.customer_id = OI.customer_id
+            and MA.question = OI.question
+    group by MA.customer_id
+)
+, G as
+(
+    select 
+        customer_id
+        ,difference
+        ,case
+        when difference >= 2 then 'Mobile App Superfans'
+        when difference >= 1 then 'Mobile App Fans'
+        when difference <= -2 then 'Online Interface Superfans'
+        when difference <= -1 then 'Online Interface Fans'
+        else 'Neutral'
+        end as groups
+    from diff
+)
+select groups
+    ,round(count (distinct customer_id)/(select count (distinct customer_id) from pd2023_wk06_dsb_customer_survey)*100,1) as percentage
+from G
+group by groups
