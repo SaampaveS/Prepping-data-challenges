@@ -1,0 +1,99 @@
+--Union tables, case statements and rank--
+with CTE as
+(
+select *
+    ,to_date('01/01/2023') as file_date
+from pd2023_wk08_01
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('02/01/2023') as file_date
+from pd2023_wk08_02
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('03/01/2023') as file_date
+from pd2023_wk08_03
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('04/01/2023') as file_date
+from pd2023_wk08_04
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('05/01/2023') as file_date
+from pd2023_wk08_05
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('06/01/2023') as file_date
+from pd2023_wk08_06
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('07/01/2023') as file_date
+from pd2023_wk08_07
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('08/01/2023') as file_date
+from pd2023_wk08_08
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('09/01/2023') as file_date
+from pd2023_wk08_09
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('10/01/2023') as file_date
+from pd2023_wk08_10
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('11/01/2023') as file_date
+from pd2023_wk08_11
+where market_cap <> 'n/a'
+union all
+select *
+    ,to_date('12/01/2023') as file_date
+from pd2023_wk08_12
+where market_cap <> 'n/a'
+)
+, A as
+(
+select CTE.file_date
+    ,CTE.Ticker
+    ,CTE.Sector
+    ,CTE.Market
+    ,CTE.Stock_name
+    ,replace(CTE.purchase_price,'$','') as Purchase_prices
+    ,case 
+    when contains(replace(market_cap,'$',''),'M') then replace(replace(market_cap,'$',''),'M','')*1000000
+    when contains(replace(market_cap,'$',''),'B') then replace(replace(market_cap,'$',''),'B','')*1000000000
+    end as M_cap
+    ,case
+        when M_cap >= 10000000000 then 'Huge'
+        when M_cap >= 1000000000 then 'Large'
+        when M_cap >= 100000000 then 'Medium'
+        when M_cap < 100000000 then 'Small'
+        end as mc_group
+    ,case
+        when replace(purchase_price,'$','')>= 75000 then 'Very High'
+        when replace(purchase_price,'$','')>= 50000 then 'High'
+        when replace(purchase_price,'$','')>= 25000 then 'Medium'
+        when replace(purchase_price,'$','')>= 0 then 'Low'
+        end as PPG
+From CTE
+where market_cap is not null
+)
+, RNK as (
+select *
+,rank()over(Partition by file_date,mc_group, PPG order by Purchase_prices desc ) as rnk
+from A
+)
+
+select * from rnk
+where rnk<=5
+    and M_Cap is not null
