@@ -1,0 +1,25 @@
+--CTE to unpivot quarterly targets data--
+ WITH T as
+        (
+        select online_or_in_person
+        , sum(target) as targets
+        , replace(quarters, 'Q') as quarters
+        from pd2023_wk03_targets
+            unpivot(target for quarters in (q1,q2,q3,q4))
+        group by ONLINE_OR_IN_PERSON
+                ,quarters
+        ) 
+--Join on quarters and online or in person. Sum transactions and calculter variance to target--
+SELECT 
+    quarter(to_date(B.transaction_date,'DD/MM/YYYY HH:MI:SS')) as quarters
+    ,sum(B.value) as total_value
+    ,max(T.targets) as targets
+    ,iff(B.online_or_in_person =1,'Online','In-Person') as online_or_in_person
+    ,sum(B.value)-max(T.targets) as variance_from_targets
+from pd2023_wk01 B
+inner join T on T.quarters= quarter(to_date(B.transaction_date,'DD/MM/YYYY HH:MI:SS'))
+    and T.online_or_in_person=iff(B.online_or_in_person =1,'Online','In-Person')
+where transaction_code like 'DSB%'
+group by 
+        quarter(to_date(B.transaction_date,'DD/MM/YYYY HH:MI:SS'))
+        ,B.online_or_in_person
