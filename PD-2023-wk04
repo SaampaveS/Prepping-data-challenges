@@ -1,0 +1,60 @@
+--Unpivot demographic and union all the tables--
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_january
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_february
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_march
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_april
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_may
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_june
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union 
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_july
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_august
+pivot(min(value) for demographiic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_september
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_october
+pivot(min(value) for demagraphic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_november
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
+union all
+select *
+    ,joining_day||'/01/2023' as joining_date
+from pd2023_wk04_december
+pivot(min(value) for demographic in ('Ethnicity','Date of Birth', 'Account Type'))
