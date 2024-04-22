@@ -1,0 +1,41 @@
+With AN as
+(
+    select Account_number
+        ,ACCOUNT_TYPE
+        ,BALANCE_DATE
+        ,Balance
+        ,Value as Account_holder_id
+    from pd2023_wk07_account_information, lateral split_to_table(account_holder_id,',')
+    where account_holder_id is not null
+)
+, AH as
+(
+    select name
+        ,DATE_OF_BIRTH
+        ,0|| contact_number as contact_number
+        ,first_line_of_address
+        ,account_holder_id
+    from pd2023_wk07_account_holders
+)
+select AN.Account_number
+    ,AN.Account_type
+    ,AN.Balance_date
+    ,AN.Balance
+    ,AN.Account_holder_Id
+    ,AH.name
+    ,AH.Contact_Number
+    ,AH.First_Line_Of_Address
+    ,TP.TRANSACTION_ID
+    ,TP.ACCOUNT_TO
+    ,TD.TRANSACTION_DATE
+    ,TD.VALUE
+From AN
+Inner join AH 
+    on AN.account_holder_id = AH.account_holder_id
+INNER JOIN pd2023_wk07_transaction_path TP
+    on TP.account_from= AN.account_number
+INNER JOIN pd2023_wk07_transaction_detail TD
+    on TP.TRANSACTION_ID= TD.TRANSACTION_ID
+where TD.CANCELLED_='N'
+    and AN.account_type != 'Platinum'
+    and TD.VALUE> 1000
