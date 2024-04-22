@@ -1,0 +1,38 @@
+with MR as
+(
+    select 
+        split_part(transaction_code,'-',1) as Bank
+        ,date_part('month',to_date(transaction_date, 'DD/MM/YYYY HH:Mi:SS')) as transaction_month
+        ,sum(value) as total_value
+        ,Rank()over(partition by transaction_month order by total_value desc) as monthly_rank
+    from pd2023_wk01
+    group by bank
+    , transaction_month
+)
+,BR as
+(
+    select 
+        bank
+        ,avg(monthly_rank) as average_rank
+    from MR
+    group by bank
+)
+, ATV as
+(
+    select monthly_rank
+        ,avg(total_value) as average_transaction
+    from MR
+    group by monthly_rank
+)
+select Transaction_month
+    ,mr.bank
+    ,total_value
+    ,mr.monthly_rank
+    ,average_rank
+    ,average_transaction
+from MR
+inner join BR
+    on br.bank =mr.bank
+inner join ATV
+        on atv.monthly_rank = mr.monthly_rank
+ and MR.monthly_rank =mr.monthly_rank
