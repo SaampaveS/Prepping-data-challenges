@@ -1,0 +1,39 @@
+with CTE as
+(
+--incoming transactions-
+select TD.TRANSACTION_DATE as transaction_date
+    ,TD.value
+    ,TP.ACCOUNT_TO as account_number
+    ,AI.balance as balance
+from pd2023_wk07_transaction_detail TD
+inner join pd2023_wk07_transaction_path TP
+    on TD.transaction_id = TP.TRANSACTION_ID
+inner join pd2023_wk07_account_information AI
+    on TP.account_to =AI.account_number
+where cancelled_='N'
+    and balance_date= '2023-01-31'
+union all
+--outgoing transactions--
+select TD.TRANSACTION_DATE as transaction_date
+    ,TD.value *(-1) as value
+    ,TP.ACCOUNT_FROM as account_number
+    ,AI.balance as balance
+from pd2023_wk07_transaction_detail TD
+inner join pd2023_wk07_transaction_path TP
+    on TD.transaction_id = TP.TRANSACTION_ID
+inner join pd2023_wk07_account_information AI
+    on TP.account_from =AI.account_number
+where cancelled_='N'
+    and balance_date= '2023-01-31'
+union all
+select balance_date as transaction_date
+    ,null as value
+    ,account_number
+    ,balance
+from pd2023_wk07_account_information
+)
+select account_number
+    ,transaction_date
+    ,value
+    ,sum(coalesce(value,0))over(partition by account_number order by transaction_date,value desc)+ balance as balance
+from CTE
